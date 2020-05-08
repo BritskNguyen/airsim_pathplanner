@@ -17,7 +17,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   uwb_driver
-  # tf
+  tf
+  airsim_ros_pkgs
 )
 
 ## System dependencies are found with CMake's conventions
