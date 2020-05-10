@@ -57,8 +57,75 @@ int node_id;
 /* #region - Control configuration ------------------------------------------------------------------------------------*/
 
  ros::ServiceClient takeoff_srv_client;
+ ros::Publisher vel_cmd_pub;
 
-/* #region - Control configuration ------------------------------------------------------------------------------------*/
+/* #endregion - Control configuration ---------------------------------------------------------------------------------*/
+
+
+/* #region - Node's perception-----------------------------------------------------------------------------------------*/
+nav_msgs::Odometry odom_msg;
+
+/* #endregion - Node's perception--------------------------------------------------------------------------------------*/
+
+
+void odom_sub_cb(const nav_msgs::OdometryConstPtr& msg)
+{
+    odom_msg = *msg;
+}
+
+
+void ctrl_timer_cb(const ros::TimerEvent &event)
+{
+    switch(node_id)
+    {
+        case 0:
+        {
+            //This is the leader, use a periodic function to generate the velocity from a trajectory
+                
+            static double t0 = ros::Time::now().toSec();
+            static double t_prev = ros::Time::now().toSec() - t0;
+            double t_curr = ros::Time::now().toSec() - t0;
+
+            airsim_ros_pkgs::VelCmd vel_cmd;
+
+            vel_cmd.twist.linear.x = 50*2*M_PI/150*cos( t_curr*2*M_PI/150 ); //Move back and forth along the 100 m road for 2.5 mins
+            vel_cmd.twist.linear.y = 0.0;
+            vel_cmd.twist.linear.z = 0.5*(-5 - odom_msg.pose.pose.position.z); //todo: use a proportional term to control the altitude
+
+            vel_cmd.twist.angular.x = 0.0;
+            vel_cmd.twist.angular.y = 0.0;
+            vel_cmd.twist.angular.z = 0.0;
+
+            vel_cmd_pub.publish(vel_cmd);
+
+            break;
+        }
+        default:
+        {
+            //This is the leader, use a periodic function to generate the velocity from a trajectory
+                
+            static double t0 = ros::Time::now().toSec();
+            static double t_prev = ros::Time::now().toSec() - t0;
+            double t_curr = ros::Time::now().toSec() - t0;
+
+            airsim_ros_pkgs::VelCmd vel_cmd;
+
+            vel_cmd.twist.linear.x = 50*2*M_PI/150*cos( t_curr*2*M_PI/150 ); //Move back and forth along the 100 m road for 2.5 mins
+            vel_cmd.twist.linear.y = 0.0;
+            vel_cmd.twist.linear.z = 0.5*(-5 - odom_msg.pose.pose.position.z); //todo: use a proportional term to control the altitude
+
+            vel_cmd.twist.angular.x = 0.0;
+            vel_cmd.twist.angular.y = 0.0;
+            vel_cmd.twist.angular.z = 0.0;
+
+            vel_cmd_pub.publish(vel_cmd);
+
+            break;
+        }
+    }
+}
+
+
 
 int main(int argc, char **argv)
 {
@@ -82,38 +149,14 @@ int main(int argc, char **argv)
     /* #endregion - Node identity -------------------------------------------------------------------------------------*/
 
 
-    /* #region - Control related parameters ---------------------------------------------------------------------------*/
-    
-    // // Find the control topic
-    // string vel_cmd_topic;
-    // if(swarm_ctrl_nh.getParam("vel_cmd_topic", vel_cmd_topic))
-    // {
-    //     printf(KBLU "Node %d, velocity command topic found: %s\n" RESET, node_id, vel_cmd_topic);
-    // }
-    // else
-    // {
-    //     printf(KRED "Node %d, velocity command topic not found. Exiting\n" RESET, node_id);
-    //     exit(-1);
-    // }
+    /* #region - Control related configurations ------------------------------------------------------------------------*/
 
     // Advertise the topic
-    ros::Publisher vel_cmd_pub = swarm_ctrl_nh.advertise<airsim_ros_pkgs::VelCmd>
+    vel_cmd_pub = swarm_ctrl_nh.advertise<airsim_ros_pkgs::VelCmd>
                                     ("/airsim_node/drone_"
                                      + to_string(node_id)
                                      + "/vel_cmd_world_frame",
                                      1);
-
-    // Find the takeoff service
-    // string takeoff_srv;
-    // if(swarm_ctrl_nh.getParam("takeoff_srv", takeoff_srv))
-    // {
-    //     printf(KBLU "Node %d, take off service found: %s\n" RESET, node_id, takeoff_srv);
-    // }
-    // else
-    // {
-    //     printf(KRED "Node %d, take off service not found. Exiting\n" RESET, node_id);
-    //     exit(-1);
-    // }
 
     //Subscribe to the takeoff service
     takeoff_srv_client = swarm_ctrl_nh.serviceClient<airsim_ros_pkgs::Takeoff>
@@ -121,8 +164,39 @@ int main(int argc, char **argv)
                                          + to_string(node_id)
                                          + "/takeoff"
                                         );
+    // Collect the control rate parameter
+    double ctrl_rate = 0;
+    if( swarm_ctrl_nh.getParam("ctrl_rate", ctrl_rate) )
+    {
+        printf(KBLU "Node %d, control rate found: %.1f Hz\n" RESET, node_id, ctrl_rate);
+    }
+    else
+    {
+        printf(KRED "Node %d, control rate not found. Exiting\n" RESET, node_id);
+        exit(-1);
+    }
 
-    /* #endregion - Control related parameters ------------------------------------------------------------------------*/
+    //Create timer to calculate and publish control signal
+    ros::Timer ctrl_timer = swarm_ctrl_nh.createTimer(ros::Duration(1/ctrl_rate), ctrl_timer_cb);
+    ctrl_timer.stop();
+
+    /* #endregion - Control related configurations ------------------------------------------------------------------------*/
+
+
+    // Collecting the topic for feedback
+    string odom_topic;
+    if ( swarm_ctrl_nh.getParam("odom_topic", odom_topic) )
+    {
+        printf(KBLU "Node %d, odom topic found: %s\n" RESET, node_id, odom_topic.c_str());
+    }
+    else
+    {
+        printf(KRED "Node %d, odom topic not. Exiting!\n" RESET, node_id);
+        exit(-1);
+    }
+    
+    // Subsribing to the feedback topic
+    ros::Subscriber odom_sub = swarm_ctrl_nh.subscribe(odom_topic, 50, odom_sub_cb);
 
 
     // Sleep for 5 seconds, take off, then sleep for 5 seconds
@@ -133,37 +207,13 @@ int main(int argc, char **argv)
     takeoff_srv.request.waitOnLastTask = false;
 
     takeoff_srv_client.call(takeoff_srv);
-    printf("Takeoff called.\n");
 
     ros::Duration(5).sleep();
 
-    // Move forward for 20 seconds
-    ros::Rate vel_cmd_rate(20);
-    airsim_ros_pkgs::VelCmd vel_cmd;
-    ros::Time start_time = ros::Time::now();
+    printf("Node %d: Takeoff completed.\n", node_id);
 
-    vel_cmd.twist.linear.x = 5.0;
-    vel_cmd.twist.linear.y = 0.0;
-    vel_cmd.twist.linear.z = 0.0;
-
-    vel_cmd.twist.angular.x = 0;
-    vel_cmd.twist.angular.y = 0;
-    vel_cmd.twist.angular.z = 0;
-
-    vel_cmd_pub.publish(vel_cmd);
-
-    while(ros::ok())
-    {
-        double vel_cmd_time = (ros::Time::now() - start_time).toSec();
-        printf("velocity command sent. %f\n", vel_cmd_time);
-        
-        if( vel_cmd_time > 20 )
-            break;
-
-        // vel_cmd_pub.publish(vel_cmd);
-
-        vel_cmd_rate.sleep();
-    }
+    // Start the control timer
+    ctrl_timer.start();
 
     // Start the callbacks
     ros::spin();
