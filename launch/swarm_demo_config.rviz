@@ -4,11 +4,16 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Status1
-        - /Cams1
-        - /drone_0_loam1
-        - /drone_0_loam1/Odometry1
-      Splitter Ratio: 0.5
+        - /Cams1/Image1
+        - /Cams1/Image2
+        - /Cams1/Image3
+        - /drone_01
+        - /drone_01/drone_0_loam1/Odometry1
+        - /drone_01/drone_0_loam1/Odometry1/Shape1
+        - /drone_01/gndtruth_odom1/Shape1
+        - /drone_01/vins_odom1
+        - /drone_01/vins_odom1/Shape1
+      Splitter Ratio: 0.4954954981803894
     Tree Height: 486
   - Class: rviz/Selection
     Name: Selection
@@ -58,7 +63,7 @@ Visualization Manager:
       Displays:
         - Class: rviz/Image
           Enabled: true
-          Image Topic: /airsim_node/drone_0/front_center_custom/Scene
+          Image Topic: /airsim_node/drone_0/front_center/Scene
           Max Value: 1
           Median window: 5
           Min Value: 0
@@ -70,7 +75,7 @@ Visualization Manager:
           Value: true
         - Class: rviz/Image
           Enabled: true
-          Image Topic: /airsim_node/drone_1/front_center_custom/Scene
+          Image Topic: /airsim_node/drone_1/front_center/Scene
           Max Value: 1
           Median window: 5
           Min Value: 0
@@ -82,7 +87,7 @@ Visualization Manager:
           Value: true
         - Class: rviz/Image
           Enabled: true
-          Image Topic: /airsim_node/drone_2/front_center_custom/Scene
+          Image Topic: /airsim_node/drone_2/front_center/Scene
           Max Value: 1
           Median window: 5
           Min Value: 0
@@ -96,35 +101,137 @@ Visualization Manager:
       Name: Cams
     - Class: rviz/Group
       Displays:
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 255; 255; 255
-          Color Transformer: Intensity
-          Decay Time: 0
+        - Class: rviz/Group
+          Displays:
+            - Alpha: 1
+              Autocompute Intensity Bounds: true
+              Autocompute Value Bounds:
+                Max Value: 10
+                Min Value: -10
+                Value: true
+              Axis: Z
+              Channel Name: intensity
+              Class: rviz/PointCloud2
+              Color: 255; 255; 255
+              Color Transformer: Intensity
+              Decay Time: 0
+              Enabled: true
+              Invert Rainbow: false
+              Max Color: 255; 255; 255
+              Max Intensity: 14.125473022460938
+              Min Color: 0; 0; 0
+              Min Intensity: -0.02527424320578575
+              Name: PointCloud2
+              Position Transformer: XYZ
+              Queue Size: 10
+              Selectable: true
+              Size (Pixels): 3
+              Size (m): 0.10000000149011612
+              Style: Flat Squares
+              Topic: /laser_cloud_map_drone_0
+              Unreliable: false
+              Use Fixed Frame: true
+              Use rainbow: true
+              Value: true
+            - Angle Tolerance: 0.10000000149011612
+              Class: rviz/Odometry
+              Covariance:
+                Orientation:
+                  Alpha: 0.5
+                  Color: 255; 255; 127
+                  Color Style: Unique
+                  Frame: Local
+                  Offset: 1
+                  Scale: 1
+                  Value: true
+                Position:
+                  Alpha: 0.30000001192092896
+                  Color: 204; 51; 204
+                  Scale: 1
+                  Value: true
+                Value: true
+              Enabled: true
+              Keep: 1
+              Name: Odometry
+              Position Tolerance: 0.10000000149011612
+              Shape:
+                Alpha: 1
+                Axes Length: 1
+                Axes Radius: 0.5
+                Color: 255; 25; 0
+                Head Length: 0.30000001192092896
+                Head Radius: 0.10000000149011612
+                Shaft Length: 1
+                Shaft Radius: 0.05000000074505806
+                Value: Axes
+              Topic: /aft_mapped_to_init_high_frec_drone_0
+              Unreliable: false
+              Value: true
+            - Alpha: 1
+              Autocompute Intensity Bounds: true
+              Autocompute Value Bounds:
+                Max Value: 10
+                Min Value: -10
+                Value: true
+              Axis: Z
+              Channel Name: intensity
+              Class: rviz/PointCloud2
+              Color: 255; 255; 255
+              Color Transformer: Intensity
+              Decay Time: 0
+              Enabled: true
+              Invert Rainbow: false
+              Max Color: 255; 255; 255
+              Max Intensity: 14.125473022460938
+              Min Color: 0; 0; 0
+              Min Intensity: -0.02527424320578575
+              Name: PointCloud2
+              Position Transformer: XYZ
+              Queue Size: 10
+              Selectable: true
+              Size (Pixels): 3
+              Size (m): 0.10000000149011612
+              Style: Flat Squares
+              Topic: /laser_cloud_map_drone_0
+              Unreliable: false
+              Use Fixed Frame: true
+              Use rainbow: true
+              Value: true
           Enabled: true
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 9.111715316772461
-          Min Color: 0; 0; 0
-          Min Intensity: -0.03455650806427002
-          Name: PointCloud2
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.10000000149011612
-          Style: Flat Squares
-          Topic: /laser_cloud_map_drone_0
+          Name: drone_0_loam
+        - Angle Tolerance: 0.25
+          Class: rviz/Odometry
+          Covariance:
+            Orientation:
+              Alpha: 0.5
+              Color: 255; 255; 127
+              Color Style: Unique
+              Frame: Local
+              Offset: 1
+              Scale: 1
+              Value: true
+            Position:
+              Alpha: 0.30000001192092896
+              Color: 204; 51; 204
+              Scale: 1
+              Value: true
+            Value: true
+          Enabled: true
+          Keep: 1
+          Name: gndtruth_odom
+          Position Tolerance: 0.10000000149011612
+          Shape:
+            Alpha: 1
+            Axes Length: 3
+            Axes Radius: 0.125
+            Color: 255; 25; 0
+            Head Length: 0.30000001192092896
+            Head Radius: 0.10000000149011612
+            Shaft Length: 1
+            Shaft Radius: 0.05000000074505806
+            Value: Axes
+          Topic: /airsim_node/drone_0/odom_local_ned
           Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
           Value: true
         - Angle Tolerance: 0.10000000149011612
           Class: rviz/Odometry
@@ -145,28 +252,42 @@ Visualization Manager:
             Value: true
           Enabled: true
           Keep: 1
-          Name: Odometry
+          Name: vins_odom
           Position Tolerance: 0.10000000149011612
           Shape:
             Alpha: 1
-            Axes Length: 3
-            Axes Radius: 0.5
+            Axes Length: 1.5
+            Axes Radius: 0.30000001192092896
             Color: 255; 25; 0
             Head Length: 0.30000001192092896
             Head Radius: 0.10000000149011612
             Shaft Length: 1
             Shaft Radius: 0.05000000074505806
             Value: Axes
-          Topic: /laser_odom_to_init_drone_0
+          Topic: /vins_estimator/imu_propagate
           Unreliable: false
           Value: true
       Enabled: true
-      Name: drone_0_loam
+      Name: drone_0
+    - Class: rviz/TF
+      Enabled: false
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        {}
+      Update Interval: 0
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: lidar_init_drone_0
+    Fixed Frame: world_enu
     Frame Rate: 30
   Name: root
   Tools:
@@ -190,25 +311,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 66.63125610351562
+      Distance: 7.478068828582764
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 8.542976379394531
-        Y: 6.401291370391846
-        Z: -3.5990283489227295
-      Focal Shape Fixed Size: true
+        X: -1.6293673515319824
+        Y: 2.2345333099365234
+        Z: 4.906928062438965
+      Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: -1.4247965812683105
+      Pitch: 0.8897969722747803
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.642300605773926
+      Yaw: 3.5485830307006836
     Saved: ~
 Window Geometry:
   Displays:
@@ -218,7 +339,7 @@ Window Geometry:
   Hide Right Dock: true
   Image:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000015600000271fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000014800000271000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000363fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d00000363000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b2000000000000000000000002000003c000000105fc0100000004fb0000000a0049006d00610067006501000000000000013d0000005e00fffffffb0000000a0049006d00610067006501000001430000013d0000005e00fffffffb0000000a0049006d00610067006501000002860000013a0000005e00fffffffb0000000a00560069006500770073030000004e00000080000002e10000019700000003000003c00000003efc0100000002fb0000000800540069006d00650100000000000003c0000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000002640000027100000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001be00000271fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000014800000271000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000271fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000014800000271000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b2000000000000000000000002000003c000000105fc0100000004fb0000000a0049006d00610067006501000000000000013d0000005e00fffffffb0000000a0049006d00610067006501000001430000013d0000005e00fffffffb0000000a0049006d00610067006501000002860000013a0000005e00fffffffb0000000a00560069006500770073030000004e00000080000002e10000019700000003000003c00000003efc0100000002fb0000000800540069006d00650100000000000003c0000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000001fc0000027100000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
