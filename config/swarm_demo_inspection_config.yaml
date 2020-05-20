@@ -1,0 +1,47 @@
+# Node ID
+node_id:          0
+
+# Rate to publish control signal
+ctrl_rate:        20
+
+# Feedback topic
+odom_topic:       "/airsim_node/drone_0/odom_local_ned"
+
+
+# Points to stop as the drone sweeps the surface
+setpoints:
+  [ 0,  0, -2,
+    0,  0, -9,
+   -17, 0, -9,
+   -17, 0, -7,
+   -2,  0, -7,
+   -2,  0, -5,
+   -17, 0, -5,
+   -17, 0, -3,
+   -2,  0, -3,
+   -2,  0, -1,
+   -17, 0, -1,
+   -2,  0, -1,
+   -2,  0, -0 ]
+# setpoints:
+#   [ 0,  0, -2,
+#     0,  0, -6,
+#     0,  10, -6,
+#     0,  10, -5,
+#     0,  1, -5,
+#     0,  1, -4,
+#     0,  10, -4,
+#     0,  10, -3,
+#     0,  1, -3,
+#     0,  1, -2,
+#     0,  10, -2,
+#     0,  10, -1,
+#     0,  1, -1,
+#     0,  1, -0 ]
+
+# velocity from stops to stops, in m/s
+sweep_velocity:   0.5
+
+
+# Tolerance to determine if the drone has reached the setpoint
+reach_tolerance:  0.1

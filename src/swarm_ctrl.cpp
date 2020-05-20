@@ -67,62 +67,166 @@ nav_msgs::Odometry odom_msg;
 
 /* #endregion - Node's perception--------------------------------------------------------------------------------------*/
 
+/* #region - Mission */
+
+vector<Vector3d> setpoints;
+double sweep_velocity = 0.05;
+double reach_tolerance = 0.2;
+double Kp = 1.0;
+
+Vector3d odom_offset;
+
+/* #endregion - Mission */
 
 void odom_sub_cb(const nav_msgs::OdometryConstPtr& msg)
 {
     odom_msg = *msg;
+
+    static bool offset_saved = false;
+    if (!offset_saved)
+    {
+        offset_saved = true;
+
+        // This is needed because airsim has some offset in z
+        // depending on the environment used
+        odom_offset = Vector3d(odom_msg.pose.pose.position.x,
+                               odom_msg.pose.pose.position.y,
+                               odom_msg.pose.pose.position.z);
+
+        printf("Odom offset registered: %f, %f, %f\n",
+                odom_offset.x(),
+                odom_offset.y(),
+                odom_offset.z()
+              ); 
+    }
 }
 
 
 void ctrl_timer_cb(const ros::TimerEvent &event)
 {
-    switch(node_id)
+    static int curr_setpoint_idx = 0;
+    Vector3d curr_setpoint  = setpoints[curr_setpoint_idx];
+
+    Vector3d curr_position(odom_msg.pose.pose.position.x,
+                           odom_msg.pose.pose.position.y,
+                           odom_msg.pose.pose.position.z);
+
+    curr_position = curr_position - odom_offset;
+
+    // If current setpoint has not reached the last, then proceed as normal.
+    if ( curr_setpoint_idx < setpoints.size() )
     {
-        case 0:
+        // If current position is within the reach tolerance, then switch to the next setpoint
+        if ( (curr_position - curr_setpoint).norm() < reach_tolerance )
         {
-            //This is the leader, use a periodic function to generate the velocity from a trajectory
-                
-            static double t0 = ros::Time::now().toSec();
-            static double t_prev = ros::Time::now().toSec() - t0;
-            double t_curr = ros::Time::now().toSec() - t0;
+            curr_setpoint_idx++;
+            curr_setpoint = setpoints[curr_setpoint_idx];
 
-            airsim_ros_pkgs::VelCmd vel_cmd;
-
-            vel_cmd.twist.linear.x = 50*2*M_PI/150*cos( t_curr*2*M_PI/150 ); //Move back and forth along the 100 m road for 2.5 mins
-            vel_cmd.twist.linear.y = 0.0;
-            vel_cmd.twist.linear.z = 0.5*(-5 - odom_msg.pose.pose.position.z); //todo: use a proportional term to control the altitude
-
-            vel_cmd.twist.angular.x = 0.0;
-            vel_cmd.twist.angular.y = 0.0;
-            vel_cmd.twist.angular.z = 0.0;
-
-            vel_cmd_pub.publish(vel_cmd);
-
-            break;
+            if (curr_setpoint_idx < setpoints.size() )
+            {
+                printf("Reached: Setpoint %d [%6.2f, %6.2f, %6.2f].\n"
+                       "  Next: Setpoint %d [%6.2f, %6.2f, %6.2f]\n",
+                   curr_setpoint_idx-1,
+                   setpoints[curr_setpoint_idx-1].x(),
+                   setpoints[curr_setpoint_idx-1].y(),
+                   setpoints[curr_setpoint_idx-1].z(),
+                   curr_setpoint_idx,
+                   setpoints[curr_setpoint_idx].x(),
+                   setpoints[curr_setpoint_idx].y(),
+                   setpoints[curr_setpoint_idx].z());
+            }
+            else
+            {
+                printf("Reached: Setpoint %d [%6.2f, %6.2f, %6.2f].\n"
+                       "  Next: (finished).\n",
+                   curr_setpoint_idx-1,
+                   setpoints[curr_setpoint_idx-1].x(),
+                   setpoints[curr_setpoint_idx-1].y(),
+                   setpoints[curr_setpoint_idx-1].z());
+            }
+            
         }
-        default:
-        {
-            //This is the leader, use a periodic function to generate the velocity from a trajectory
-                
-            static double t0 = ros::Time::now().toSec();
-            static double t_prev = ros::Time::now().toSec() - t0;
-            double t_curr = ros::Time::now().toSec() - t0;
 
-            airsim_ros_pkgs::VelCmd vel_cmd;
+        Vector3d setpoint_error = curr_setpoint - curr_position;
 
-            vel_cmd.twist.linear.x = 50*2*M_PI/150*cos( t_curr*2*M_PI/150 ); //Move back and forth along the 100 m road for 2.5 mins
-            vel_cmd.twist.linear.y = 0.0;
-            vel_cmd.twist.linear.z = 0.5*(-5 - odom_msg.pose.pose.position.z); //todo: use a proportional term to control the altitude
+        Vector3d p_term = Kp*setpoint_error;
+        p_term = sweep_velocity/max(sweep_velocity, p_term.norm())*p_term;
 
-            vel_cmd.twist.angular.x = 0.0;
-            vel_cmd.twist.angular.y = 0.0;
-            vel_cmd.twist.angular.z = 0.0;
+        airsim_ros_pkgs::VelCmd vel_cmd;
 
-            vel_cmd_pub.publish(vel_cmd);
+        vel_cmd.twist.linear.x = p_term.x();
+        vel_cmd.twist.linear.y = p_term.y();
+        vel_cmd.twist.linear.z = p_term.z();
 
-            break;
-        }
+        vel_cmd.twist.angular.x = 0.0;
+        vel_cmd.twist.angular.y = 0.0;
+        vel_cmd.twist.angular.z = 0.0;
+
+        vel_cmd_pub.publish(vel_cmd);
     }
+    else // Current setpoint is the last one, publish (0, 0, 0) velocity to land
+    {
+        airsim_ros_pkgs::VelCmd vel_cmd;
+
+        vel_cmd.twist.linear.x = 0.0;
+        vel_cmd.twist.linear.y = 0.0;
+        vel_cmd.twist.linear.z = sweep_velocity;
+
+        vel_cmd.twist.angular.x = 0.0;
+        vel_cmd.twist.angular.y = 0.0;
+        vel_cmd.twist.angular.z = 0.0;
+
+        vel_cmd_pub.publish(vel_cmd);
+    }
+    
+
+    // switch(node_id)
+    // {
+    //     case 0:
+    //     {
+    //         //This is the leader, use a periodic function to generate the velocity from a trajectory
+                
+    //         static double t0 = ros::Time::now().toSec();
+    //         static double t_prev = ros::Time::now().toSec() - t0;
+    //         double t_curr = ros::Time::now().toSec() - t0;
+
+    //         airsim_ros_pkgs::VelCmd vel_cmd;
+
+    //         vel_cmd.twist.linear.x = 0*5*2*M_PI/150*cos( t_curr*2*M_PI/150 ); //Move back and forth along the 100 m road for 2.5 mins
+    //         vel_cmd.twist.linear.y = 0.0;
+    //         vel_cmd.twist.linear.z = 0.5*(-5 - odom_msg.pose.pose.position.z); //todo: use a proportional term to control the altitude
+
+    //         vel_cmd.twist.angular.x = 0.0;
+    //         vel_cmd.twist.angular.y = 0.0;
+    //         vel_cmd.twist.angular.z = 0.0;
+
+    //         vel_cmd_pub.publish(vel_cmd);
+
+    //         break;
+    //     }
+    //     default:
+    //     {
+    //         //This is the leader, use a periodic function to generate the velocity from a trajectory
+                
+    //         static double t0 = ros::Time::now().toSec();
+    //         static double t_prev = ros::Time::now().toSec() - t0;
+    //         double t_curr = ros::Time::now().toSec() - t0;
+
+    //         airsim_ros_pkgs::VelCmd vel_cmd;
+
+    //         vel_cmd.twist.linear.x = 0*50*2*M_PI/150*cos( t_curr*2*M_PI/150 ); //Move back and forth along the 100 m road for 2.5 mins
+    //         vel_cmd.twist.linear.y = 0.0;
+    //         vel_cmd.twist.linear.z = 0.5*(-5 - odom_msg.pose.pose.position.z); //todo: use a proportional term to control the altitude
+
+    //         vel_cmd.twist.angular.x = 0.0;
+    //         vel_cmd.twist.angular.y = 0.0;
+    //         vel_cmd.twist.angular.z = 0.0;
+
+    //         vel_cmd_pub.publish(vel_cmd);
+
+    //         break;
+    //     }
+    // }
 }
 
 
@@ -183,7 +287,53 @@ int main(int argc, char **argv)
     /* #endregion - Control related configurations ------------------------------------------------------------------------*/
 
 
-    // Collecting the topic for feedback
+    /* #region - Collecting the sweeping mission -----------------------------------------------------------------------*/
+    
+    vector<double> setpoints_;
+    if( swarm_ctrl_nh.getParam("setpoints", setpoints_) )
+    {
+        printf(KBLU " %d setpoints found\n" RESET, setpoints_.size()/3);
+    }
+    else
+    {
+        printf(KYEL " No setpoint found. Staying fixed\n" RESET);
+        setpoints_.push_back(0);
+        setpoints_.push_back(0); 
+        setpoints_.push_back(0);
+    }
+
+    for(int i = 0; i < setpoints_.size()/3; i++)
+    {
+        Vector3d setpoint;
+        setpoint << setpoints_[i*3], setpoints_[i*3 + 1], setpoints_[i*3 + 2];
+        setpoints.push_back(setpoint);
+    }
+
+    if( swarm_ctrl_nh.getParam("sweep_velocity", sweep_velocity) )
+    {
+        printf(KBLU "sweep velocity found: %f\n" RESET, sweep_velocity);
+    }
+    else
+    {
+        sweep_velocity = 0.5;
+        printf(KRED "sweep velocity not found. Using %f as default\n" RESET, sweep_velocity);   
+    }
+    
+    if( swarm_ctrl_nh.getParam("reach_tolerance", reach_tolerance) )
+    {
+        printf(KBLU "reach tolerance found: %f\n" RESET, reach_tolerance);
+    }
+    else
+    {
+        reach_tolerance = 0.2;
+        printf(KRED "reach tolerance not found. Using %f as default\n" RESET, reach_tolerance);   
+    }
+
+    /* #endregion - Collecting the sweeping mission --------------------------------------------------------------------*/
+
+
+    /* #region - Collecting the topic for feedback ---------------------------------------------------------------------*/
+    
     string odom_topic;
     if ( swarm_ctrl_nh.getParam("odom_topic", odom_topic) )
     {
@@ -198,9 +348,20 @@ int main(int argc, char **argv)
     // Subsribing to the feedback topic
     ros::Subscriber odom_sub = swarm_ctrl_nh.subscribe(odom_topic, 50, odom_sub_cb);
 
+    /* #endregion - Collecting the topic for feedback ------------------------------------------------------------------*/
 
-    // Sleep for 5 seconds, take off, then sleep for 5 seconds
-    ros::Duration(5).sleep();
+
+    // Spin for 10 seconds to initialize other variables,
+    // then start the mission
+    ros::Rate rate(20);
+    ros::Time start_time = ros::Time::now();
+    while(ros::ok() && (ros::Time::now() - start_time).toSec() < 10.0 ) 
+    {
+        rate.sleep();
+        ros::spinOnce();
+    }
+
+    printf("Taking off.\n");
 
     airsim_ros_pkgs::Takeoff takeoff_srv;
 
@@ -210,7 +371,7 @@ int main(int argc, char **argv)
 
     ros::Duration(5).sleep();
 
-    printf("Node %d: Takeoff completed.\n", node_id);
+    printf("Mission started.\n");
 
     // Start the control timer
     ctrl_timer.start();
