@@ -1,7 +1,6 @@
 <launch>
 
-    <!-- <arg name="bagfile_name" default="/home/$(env USER)/airsim_building99_xsweep_2020-05-21-00-04-58.bag" /> -->
-    <arg name="bagfile_name" default="/home/$(env USER)/airsim_building99_xsweep_2020-05-21-19-45-24.bag" />
+    <arg name="bagfile_name" default="/home/$(env USER)/airsim_building99_xsweep_2020-05-22-20-25-16.bag" />
     <arg name="mode" default="check" /> <!-- choose "record" or "play" or "check"-->
 
 
@@ -147,6 +146,22 @@
             <node pkg="tf2_ros" type="static_transform_publisher" name="vio_init_tf"
                     args="5.0 -0.3  0.15 -1.57079632679  0.0  0.0  world vio_init" />
         </group>
+
+            <!-- ######### Launch the viral node ################################ -->
+
+            <arg name="viral_output" default = "screen" />
+            <arg name="node_name"   default  = "viral" />
+
+            <node respawn ="true" pkg="viral" type="viral_node" name="viral" output="$(arg viral_output)" >
+
+                <rosparam file="$(find viral)/config/viral_airsim_params.yaml" command="load"/>
+
+                <param name="log_filename" type="string"
+                    value="/home/$(env USER)/viral_logs/bca/clementi_20200116/viral_airsim.csv" />
+
+            </node>
+
+            <!-- ######### Launch the viral node ################################ -->
 
     </group>
 
