@@ -1,6 +1,7 @@
 <launch>
 
-    <arg name="bagfile_name" default="/home/$(env USER)/airsim_building99_xsweep_2020-05-22-20-25-16.bag" />
+    <!-- <arg name="bagfile_name" default="/home/$(env USER)/airsim_building99_xsweep_2020-05-23-00-59-26.bag" /> -->
+    <arg name="bagfile_name" default="/home/$(env USER)/airsim_building99_xsweep_2020-05-23-16-39-18.bag" />
     <arg name="mode" default="check" /> <!-- choose "record" or "play" or "check"-->
 
 
@@ -16,7 +17,29 @@
     <!-- Launch the visualization -->
     <node name="rviz_visualisation" pkg="rviz" type="rviz" output="log"
           args="-d $(find swarm_demo)/launch/viral.rviz" />
-    
+
+    <group if="$(eval mode == 'record')">
+        <!-- rosbag recorder -->
+        <node  pkg="rosbag" type="record" name="rosbag_record"
+            args="-o /home/$(env USER)/airsim_building99_xsweep
+                    /airsim_node/drone_0/imu/Imu
+                    /airsim_node/drone_0/left/Scene
+                    /airsim_node/drone_0/right/Scene
+                    /airsim_node/drone_0/lidar/Lidar0
+                    /airsim_node/drone_0/lidar/Lidar1
+                    /airsim_node/drone_0/odom_global
+                    /airsim_node/drone_0/vel_cmd_world_frame
+                    /uwb_endorange_info_200" />
+    </group>
+
+    <group if="$(eval mode == 'play')">
+
+        <param name  ="/use_sim_time" value="true"/>
+        <node required="true" pkg="rosbag" type="play" name="rosbag_play"
+              args="--clock $(arg bagfile_name)" />
+
+    </group>
+
     <group if="$(eval mode == 'record' or mode == 'check')"> 
 
         <!-- Launching the airsim server -->
@@ -37,28 +60,9 @@
         <node respawn="true" pkg="rnsim" type="rnsim_node" name="rnsim"  output="log"/>
 
         <!-- swarm demo ctrl node --> 
-        <node name="swarm_demo_ctrl_0" pkg="swarm_demo" type="swarm_demo_ctrl_node" output="screen">
+        <node required="true" name="swarm_demo_ctrl_0" pkg="swarm_demo" type="swarm_demo_ctrl_node" output="screen">
             <rosparam file="$(find swarm_demo)/config/swarm_demo_inspection_config.yaml" command="load"/>
         </node>
-
-        <!-- rosbag recorder -->
-        <node  pkg="rosbag" type="record" name="rosbag_record"
-            args="-o /home/$(env USER)/airsim_building99_xsweep
-                    /airsim_node/drone_0/imu/Imu
-                    /airsim_node/drone_0/left/Scene
-                    /airsim_node/drone_0/right/Scene
-                    /airsim_node/drone_0/lidar/Lidar0
-                    /airsim_node/drone_0/lidar/Lidar1
-                    /airsim_node/drone_0/odom_global
-                    /airsim_node/drone_0/vel_cmd_world_frame
-                    /uwb_endorange_info_200" />
-    </group>
-
-    <group if="$(eval mode == 'play')">
-
-        <param name  ="/use_sim_time" value="true"/>
-        <node required="true" pkg="rosbag" type="play" name="rosbag_play"
-              args="--clock $(arg bagfile_name)" />
 
     </group>
 
@@ -149,7 +153,7 @@
 
             <!-- ######### Launch the viral node ################################ -->
 
-            <arg name="viral_output" default = "screen" />
+            <arg name="viral_output" default = "log" />
             <arg name="node_name"   default  = "viral" />
 
             <node respawn ="true" pkg="viral" type="viral_node" name="viral" output="$(arg viral_output)" >

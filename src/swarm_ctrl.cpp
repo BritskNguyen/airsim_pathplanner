@@ -33,6 +33,8 @@
 // Airsim takeoff message
 #include <airsim_ros_pkgs/Takeoff.h>
 
+#include "math_common.h"
+
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
 #define KGRN  "\x1B[32m"
@@ -73,6 +75,8 @@ vector<Vector3d> setpoints;
 double sweep_velocity = 0.05;
 double reach_tolerance = 0.2;
 double Kp = 1.0;
+double Kp_yaw = 0.25;
+double yaw_rate_max = 0.1;
 
 Vector3d odom_offset;
 
@@ -104,63 +108,130 @@ void odom_sub_cb(const nav_msgs::OdometryConstPtr& msg)
 
 void ctrl_timer_cb(const ros::TimerEvent &event)
 {
+    // Process the feedback
+    Vector3d curr_position = Vector3d(odom_msg.pose.pose.position.x,
+                                      odom_msg.pose.pose.position.y,
+                                      odom_msg.pose.pose.position.z) - odom_offset;
+
+    double curr_roll, curr_pitch, curr_yaw;
+    tf::Matrix3x3(tf::Quaternion(odom_msg.pose.pose.orientation.x,
+                                 odom_msg.pose.pose.orientation.y,
+                                 odom_msg.pose.pose.orientation.z,
+                                 odom_msg.pose.pose.orientation.w)).getRPY(curr_roll, curr_pitch, curr_yaw);
+
+    // Calculate the position and yaw setpoints
     static int curr_setpoint_idx = 0;
-    Vector3d curr_setpoint  = setpoints[curr_setpoint_idx];
+    // Postion:
+    Vector3d curr_setpoint = setpoints[curr_setpoint_idx];
+    // Yaw:
+    double yaw_setpoint = curr_yaw;
+    if(curr_setpoint_idx == 0)
+        yaw_setpoint = curr_yaw;
+    else
+    {
+        Vector3d dir = curr_setpoint - setpoints[curr_setpoint_idx - 1];
+        if( sqrt(dir.x()*dir.x() + dir.y()*dir.y()) > 0.05 )
+            yaw_setpoint = atan2(dir.y(), dir.x());
+    }
 
-    Vector3d curr_position(odom_msg.pose.pose.position.x,
-                           odom_msg.pose.pose.position.y,
-                           odom_msg.pose.pose.position.z);
+    // Verify if the setpoints have been reached
+    // Position:
+    static vector<bool> position_setpoint_reached = vector<bool>(setpoints.size(), false);
+    Vector3d position_error = curr_setpoint - curr_position;
+    // If only current position setpoint has not been flagged as reached, then assess it
+    if (!position_setpoint_reached[curr_setpoint_idx])
+        position_setpoint_reached[curr_setpoint_idx] = (curr_position - curr_setpoint).norm() < reach_tolerance;
+    // Yaw:
+    static vector<bool> yaw_setpoint_reached = vector<bool>(setpoints.size(), false);
+    double yaw_error = -math_common::angular_dist(yaw_setpoint, curr_yaw);
+    if (!yaw_setpoint_reached[curr_setpoint_idx])
+    {
+        if(curr_setpoint_idx == 0)
+            yaw_setpoint_reached[curr_setpoint_idx] = true;
+        else
+        {
+            Vector3d dir = curr_setpoint - setpoints[curr_setpoint_idx - 1];
+            if( sqrt(dir.x()*dir.x() + dir.y()*dir.y()) < 0.05 || fabs(yaw_error) < 0.1 )
+                yaw_setpoint_reached[curr_setpoint_idx] = true;
+            else
+                yaw_setpoint_reached[curr_setpoint_idx] = false; 
+        }
+    }
 
-    curr_position = curr_position - odom_offset;
-
+    // Generate twist
+    Vector3d linear_vel(0, 0, 0);
+    double yaw_rate = 0;
     // If current setpoint has not reached the last, then proceed as normal.
     if ( curr_setpoint_idx < setpoints.size() )
     {
-        // If current position is within the reach tolerance, then switch to the next setpoint
-        if ( (curr_position - curr_setpoint).norm() < reach_tolerance )
+        ROS_INFO_THROTTLE(1.0, "sp: %d, yaw_sp_r: %s. yaw_sp: %.4f. yaw_sp_err: %.4f. "
+                         "pos_sp_r: %s. pos: %.2f, %.2f, %.2f. pos_err: %.2f, %.2f, %.2f\n",
+                          curr_setpoint_idx,
+                          yaw_setpoint_reached[curr_setpoint_idx] ? "true" : "false",
+                          yaw_setpoint,
+                          yaw_error,
+                          position_setpoint_reached[curr_setpoint_idx] ? "true" : "false",
+                          curr_setpoint.x(),
+                          curr_setpoint.y(),
+                          curr_setpoint.z(),
+                          position_error.x(),
+                          position_error.y(),
+                          position_error.z());
+
+        // If yaw setpoint has not been reached, don't generate the linear velocity
+        if ( !yaw_setpoint_reached[curr_setpoint_idx] )
+        {
+            yaw_rate = Kp_yaw*yaw_error;
+            yaw_rate = yaw_rate_max/max(yaw_rate_max,fabs(yaw_rate))*yaw_rate;
+            linear_vel = Vector3d(0, 0, 0);
+        }
+        else if ( !position_setpoint_reached[curr_setpoint_idx] )
+        {
+            yaw_rate = Kp_yaw*yaw_error;
+            yaw_rate = yaw_rate_max/max(yaw_rate_max,fabs(yaw_rate))*yaw_rate;
+            linear_vel = Kp*position_error;
+            linear_vel = sweep_velocity/max(sweep_velocity, linear_vel.norm())*linear_vel;
+        }
+        else
         {
             curr_setpoint_idx++;
-            curr_setpoint = setpoints[curr_setpoint_idx];
-
-            if (curr_setpoint_idx < setpoints.size() )
-            {
+            if (curr_setpoint_idx < setpoints.size())        
                 printf("Reached: Setpoint %d [%6.2f, %6.2f, %6.2f].\n"
-                       "  Next: Setpoint %d [%6.2f, %6.2f, %6.2f]\n",
-                   curr_setpoint_idx-1,
-                   setpoints[curr_setpoint_idx-1].x(),
-                   setpoints[curr_setpoint_idx-1].y(),
-                   setpoints[curr_setpoint_idx-1].z(),
-                   curr_setpoint_idx,
-                   setpoints[curr_setpoint_idx].x(),
-                   setpoints[curr_setpoint_idx].y(),
-                   setpoints[curr_setpoint_idx].z());
-            }
+                        "  Next: Setpoint %d [%6.2f, %6.2f, %6.2f].\n",
+                        curr_setpoint_idx-1,
+                        setpoints[curr_setpoint_idx-1].x(),
+                        setpoints[curr_setpoint_idx-1].y(),
+                        setpoints[curr_setpoint_idx-1].z(),
+                        curr_setpoint_idx,
+                        setpoints[curr_setpoint_idx].x(),
+                        setpoints[curr_setpoint_idx].y(),
+                        setpoints[curr_setpoint_idx].z());
             else
             {
                 printf("Reached: Setpoint %d [%6.2f, %6.2f, %6.2f].\n"
-                       "  Next: (finished).\n",
-                   curr_setpoint_idx-1,
-                   setpoints[curr_setpoint_idx-1].x(),
-                   setpoints[curr_setpoint_idx-1].y(),
-                   setpoints[curr_setpoint_idx-1].z());
+                        "  Next: Finished.\n",
+                        curr_setpoint_idx-1,
+                        setpoints[curr_setpoint_idx-1].x(),
+                        setpoints[curr_setpoint_idx-1].y(),
+                        setpoints[curr_setpoint_idx-1].z(),
+                        curr_setpoint_idx,
+                        setpoints[curr_setpoint_idx].x(),
+                        setpoints[curr_setpoint_idx].y(),
+                        setpoints[curr_setpoint_idx].z());
             }
             
+            return;
         }
-
-        Vector3d setpoint_error = curr_setpoint - curr_position;
-
-        Vector3d p_term = Kp*setpoint_error;
-        p_term = sweep_velocity/max(sweep_velocity, p_term.norm())*p_term;
 
         airsim_ros_pkgs::VelCmd vel_cmd;
 
-        vel_cmd.twist.linear.x = p_term.x();
-        vel_cmd.twist.linear.y = p_term.y();
-        vel_cmd.twist.linear.z = p_term.z();
-
+        vel_cmd.twist.linear.x = linear_vel.x();
+        vel_cmd.twist.linear.y = linear_vel.y();
+        vel_cmd.twist.linear.z = linear_vel.z();
+        
         vel_cmd.twist.angular.x = 0.0;
         vel_cmd.twist.angular.y = 0.0;
-        vel_cmd.twist.angular.z = 0.0;
+        vel_cmd.twist.angular.z = yaw_rate;
 
         vel_cmd_pub.publish(vel_cmd);
     }
@@ -168,9 +239,9 @@ void ctrl_timer_cb(const ros::TimerEvent &event)
     {
         airsim_ros_pkgs::VelCmd vel_cmd;
 
-        vel_cmd.twist.linear.x = 0.0;
-        vel_cmd.twist.linear.y = 0.0;
-        vel_cmd.twist.linear.z = sweep_velocity;
+        vel_cmd.twist.linear.x =  0.0;
+        vel_cmd.twist.linear.y =  0.0;
+        vel_cmd.twist.linear.z = -sweep_velocity;
 
         vel_cmd.twist.angular.x = 0.0;
         vel_cmd.twist.angular.y = 0.0;

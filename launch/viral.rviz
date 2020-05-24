@@ -6,19 +6,19 @@ Panels:
       Expanded:
         - /Global Options1
         - /Cams1
+        - /Cams1/left_cam1
+        - /Cams1/vins_track1
         - /drone_01
-        - /drone_01/horz_loam1/PointCloud21
-        - /drone_01/horz_loam1/PointCloud21/Status1
-        - /drone_01/horz_loam1/Odometry1/Status1
-        - /drone_01/vert_loam1/PointCloud21
-        - /drone_01/vert_loam1/Odometry1
-        - /drone_01/vert_loam1/Odometry1/Shape1
-        - /drone_01/vins_odom1/Shape1
-        - /TF1
-        - /TF1/Frames1
-        - /TF1/Tree1
-      Splitter Ratio: 0.4887459874153137
-    Tree Height: 536
+        - /drone_01/horz_loam1
+        - /drone_01/horz_loam1/Odometry1/Shape1
+        - /drone_01/vert_loam1
+        - /drone_01/VINS1
+        - /viral1/Odometry1
+        - /viral1/Odometry1/Shape1
+        - /gndtruth_odom1/Shape1
+        - /gndtruth_odom_plot1/Shape1
+      Splitter Ratio: 0.39963167905807495
+    Tree Height: 509
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -37,7 +37,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Image
+    SyncSource: left_cam
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -64,7 +64,43 @@ Visualization Manager:
       Reference Frame: <Fixed Frame>
       Value: true
     - Class: rviz/Group
-      Displays: ~
+      Displays:
+        - Class: rviz/Image
+          Enabled: true
+          Image Topic: /airsim_node/drone_0/left/Scene
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: left_cam
+          Normalize Range: true
+          Queue Size: 2
+          Transport Hint: raw
+          Unreliable: false
+          Value: true
+        - Class: rviz/Image
+          Enabled: true
+          Image Topic: /vins_estimator/image_track
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: vins_track
+          Normalize Range: true
+          Queue Size: 2
+          Transport Hint: raw
+          Unreliable: false
+          Value: true
+        - Class: rviz/Image
+          Enabled: true
+          Image Topic: /airsim_node/drone_0/right/Scene
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: right_cam
+          Normalize Range: true
+          Queue Size: 2
+          Transport Hint: raw
+          Unreliable: false
+          Value: true
       Enabled: true
       Name: Cams
     - Class: rviz/Group
@@ -74,8 +110,8 @@ Visualization Manager:
             - Alpha: 1
               Autocompute Intensity Bounds: true
               Autocompute Value Bounds:
-                Max Value: 12.602291107177734
-                Min Value: -1.244903802871704
+                Max Value: 11.534175872802734
+                Min Value: -1.9202998876571655
                 Value: true
               Axis: Z
               Channel Name: intensity
@@ -83,7 +119,7 @@ Visualization Manager:
               Color: 255; 255; 255
               Color Transformer: AxisColor
               Decay Time: 0
-              Enabled: true
+              Enabled: false
               Invert Rainbow: false
               Max Color: 255; 255; 255
               Max Intensity: 15.125473022460938
@@ -100,7 +136,7 @@ Visualization Manager:
               Unreliable: false
               Use Fixed Frame: true
               Use rainbow: true
-              Value: true
+              Value: false
             - Angle Tolerance: 0.10000000149011612
               Class: rviz/Odometry
               Covariance:
@@ -118,7 +154,7 @@ Visualization Manager:
                   Scale: 1
                   Value: true
                 Value: true
-              Enabled: true
+              Enabled: false
               Keep: 1
               Name: Odometry
               Position Tolerance: 0.10000000149011612
@@ -134,6 +170,29 @@ Visualization Manager:
                 Value: Axes
               Topic: /aft_mapped_to_init_high_frec_horz
               Unreliable: false
+              Value: false
+            - Alpha: 1
+              Buffer Length: 1
+              Class: rviz/Path
+              Color: 255; 0; 255
+              Enabled: true
+              Head Diameter: 0.30000001192092896
+              Head Length: 0.20000000298023224
+              Length: 0.30000001192092896
+              Line Style: Billboards
+              Line Width: 0.10000000149011612
+              Name: Path
+              Offset:
+                X: 0
+                Y: 0
+                Z: 0
+              Pose Color: 255; 85; 255
+              Pose Style: None
+              Radius: 0.029999999329447746
+              Shaft Diameter: 0.10000000149011612
+              Shaft Length: 0.10000000149011612
+              Topic: /aft_mapped_path_horz
+              Unreliable: false
               Value: true
           Enabled: true
           Name: horz_loam
@@ -142,8 +201,8 @@ Visualization Manager:
             - Alpha: 1
               Autocompute Intensity Bounds: true
               Autocompute Value Bounds:
-                Max Value: 13.001091957092285
-                Min Value: -0.6239370107650757
+                Max Value: 11.992096900939941
+                Min Value: -0.9156225323677063
                 Value: true
               Axis: Z
               Channel Name: intensity
@@ -151,7 +210,7 @@ Visualization Manager:
               Color: 255; 255; 255
               Color Transformer: AxisColor
               Decay Time: 0
-              Enabled: true
+              Enabled: false
               Invert Rainbow: false
               Max Color: 255; 255; 255
               Max Intensity: 15.125373840332031
@@ -168,7 +227,7 @@ Visualization Manager:
               Unreliable: false
               Use Fixed Frame: true
               Use rainbow: true
-              Value: true
+              Value: false
             - Angle Tolerance: 0.10000000149011612
               Class: rviz/Odometry
               Covariance:
@@ -186,7 +245,7 @@ Visualization Manager:
                   Scale: 1
                   Value: true
                 Value: true
-              Enabled: true
+              Enabled: false
               Keep: 1
               Name: Odometry
               Position Tolerance: 0.10000000149011612
@@ -202,9 +261,97 @@ Visualization Manager:
                 Value: Axes
               Topic: /aft_mapped_to_init_high_frec_vert
               Unreliable: false
+              Value: false
+            - Alpha: 1
+              Buffer Length: 1
+              Class: rviz/Path
+              Color: 255; 85; 0
+              Enabled: true
+              Head Diameter: 0.30000001192092896
+              Head Length: 0.20000000298023224
+              Length: 0.30000001192092896
+              Line Style: Billboards
+              Line Width: 0.10000000149011612
+              Name: Path
+              Offset:
+                X: 0
+                Y: 0
+                Z: 0
+              Pose Color: 255; 85; 255
+              Pose Style: None
+              Radius: 0.029999999329447746
+              Shaft Diameter: 0.10000000149011612
+              Shaft Length: 0.10000000149011612
+              Topic: /aft_mapped_path_vert
+              Unreliable: false
               Value: true
           Enabled: true
           Name: vert_loam
+        - Class: rviz/Group
+          Displays:
+            - Angle Tolerance: 0.10000000149011612
+              Class: rviz/Odometry
+              Covariance:
+                Orientation:
+                  Alpha: 0.5
+                  Color: 255; 255; 127
+                  Color Style: Unique
+                  Frame: Local
+                  Offset: 1
+                  Scale: 1
+                  Value: true
+                Position:
+                  Alpha: 0.30000001192092896
+                  Color: 204; 51; 204
+                  Scale: 1
+                  Value: true
+                Value: true
+              Enabled: false
+              Keep: 1
+              Name: vins_odom
+              Position Tolerance: 0.10000000149011612
+              Shape:
+                Alpha: 1
+                Axes Length: 3
+                Axes Radius: 0.20000000298023224
+                Color: 255; 25; 0
+                Head Length: 0.30000001192092896
+                Head Radius: 0.10000000149011612
+                Shaft Length: 1
+                Shaft Radius: 0.05000000074505806
+                Value: Axes
+              Topic: /vins_estimator/imu_propagate
+              Unreliable: false
+              Value: false
+            - Alpha: 1
+              Buffer Length: 1
+              Class: rviz/Path
+              Color: 0; 255; 0
+              Enabled: true
+              Head Diameter: 0.30000001192092896
+              Head Length: 0.20000000298023224
+              Length: 0.30000001192092896
+              Line Style: Billboards
+              Line Width: 0.10000000149011612
+              Name: Path
+              Offset:
+                X: 0
+                Y: 0
+                Z: 0
+              Pose Color: 255; 85; 255
+              Pose Style: None
+              Radius: 0.029999999329447746
+              Shaft Diameter: 0.10000000149011612
+              Shaft Length: 0.10000000149011612
+              Topic: /vins_estimator/path
+              Unreliable: false
+              Value: true
+          Enabled: true
+          Name: VINS
+      Enabled: true
+      Name: drone_0
+    - Class: rviz/Group
+      Displays:
         - Angle Tolerance: 0.10000000149011612
           Class: rviz/Odometry
           Covariance:
@@ -224,23 +371,83 @@ Visualization Manager:
             Value: true
           Enabled: true
           Keep: 1
-          Name: vins_odom
+          Name: Odometry
           Position Tolerance: 0.10000000149011612
           Shape:
             Alpha: 1
-            Axes Length: 1.5
-            Axes Radius: 0.30000001192092896
+            Axes Length: 1
+            Axes Radius: 0.4000000059604645
             Color: 255; 25; 0
             Head Length: 0.30000001192092896
             Head Radius: 0.10000000149011612
             Shaft Length: 1
             Shaft Radius: 0.05000000074505806
             Value: Axes
-          Topic: /vins_estimator/imu_propagate
+          Topic: /viral/odom_predicted
+          Unreliable: false
+          Value: true
+        - Alpha: 1
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 0; 85; 255
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.10000000149011612
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /viral/path
+          Unreliable: false
+          Value: true
+        - Alpha: 1
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 0; 170; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.20000000298023224
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /viral/sliding_window_path
           Unreliable: false
           Value: true
       Enabled: true
-      Name: drone_0
+      Name: viral
+    - Class: rviz/TF
+      Enabled: false
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+      Marker Scale: 5
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        {}
+      Update Interval: 0
+      Value: false
     - Angle Tolerance: 0.25
       Class: rviz/Odometry
       Covariance:
@@ -264,7 +471,7 @@ Visualization Manager:
       Position Tolerance: 0.10000000149011612
       Shape:
         Alpha: 1
-        Axes Length: 3
+        Axes Length: 2
         Axes Radius: 0.125
         Color: 255; 25; 0
         Head Length: 0.30000001192092896
@@ -275,102 +482,38 @@ Visualization Manager:
       Topic: /airsim_node/drone_0/odom_global
       Unreliable: false
       Value: true
-    - Class: rviz/TF
+    - Angle Tolerance: 0.25
+      Class: rviz/Odometry
+      Covariance:
+        Orientation:
+          Alpha: 0.5
+          Color: 255; 255; 127
+          Color Style: Unique
+          Frame: Local
+          Offset: 1
+          Scale: 1
+          Value: true
+        Position:
+          Alpha: 0.30000001192092896
+          Color: 204; 51; 204
+          Scale: 1
+          Value: true
+        Value: true
       Enabled: true
-      Frame Timeout: 15
-      Frames:
-        All Enabled: false
-        aft_mapped_horz:
-          Value: true
-        aft_mapped_vert:
-          Value: false
-        body:
-          Value: false
-        camera:
-          Value: false
-        dr0_left_body:
-          Value: true
-        dr0_right_body:
-          Value: true
-        drone_0_left_optical:
-          Value: false
-        drone_0_right_optical:
-          Value: false
-        drone_0_startpoint:
-          Value: true
-        lidar_init_horz:
-          Value: false
-        lidar_init_vert:
-          Value: false
-        vio_init:
-          Value: false
-        world:
-          Value: true
-        world_airsim:
-          Value: true
-      Marker Scale: 5
-      Name: TF
-      Show Arrows: true
-      Show Axes: true
-      Show Names: true
-      Tree:
-        world:
-          lidar_init_horz:
-            aft_mapped_horz:
-              {}
-          lidar_init_vert:
-            aft_mapped_vert:
-              {}
-          vio_init:
-            body:
-              camera:
-                {}
-          world_airsim:
-            drone_0_startpoint:
-              dr0_left_body:
-                {}
-              dr0_right_body:
-                {}
-              drone_0_left_optical:
-                {}
-              drone_0_right_optical:
-                {}
-      Update Interval: 0
-      Value: true
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /airsim_node/drone_0/left/Scene
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: true
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /vins_estimator/image_track
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: true
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /airsim_node/drone_0/right/Scene
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
+      Keep: 1000000000
+      Name: gndtruth_odom_plot
+      Position Tolerance: 0.10000000149011612
+      Shape:
+        Alpha: 1
+        Axes Length: 2
+        Axes Radius: 0.125
+        Color: 255; 25; 0
+        Head Length: 0.05000000074505806
+        Head Radius: 0.20000000298023224
+        Shaft Length: 0.05000000074505806
+        Shaft Radius: 0.20000000298023224
+        Value: Arrow
+      Topic: /airsim_node/drone_0/odom_global
       Unreliable: false
       Value: true
   Enabled: true
@@ -401,35 +544,33 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 82.48841094970703
+      Distance: 24.132333755493164
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.7441651821136475
-        Y: 0.18953382968902588
-        Z: 1.4094687700271606
+        X: -1.416514277458191
+        Y: 2.895318031311035
+        Z: 3.400653123855591
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.544797420501709
+      Pitch: 0.9947965145111084
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.11355459690094
+      Yaw: 1.121772050857544
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: true
-  Height: 1050
+  Height: 1023
   Hide Left Dock: true
   Hide Right Dock: true
-  Image:
-    collapsed: false
-  QMainWindow State: 000000ff00000000fd000000040000000000000270000002a3fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730000000116000002a3000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000271fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000014800000271000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b2000000000000000000000002000003c0000000d3fc0100000006fb0000000a0049006d0061006700650100000000000000ea0000005e00fffffffb0000000a0049006d00610067006501000000f0000001d80000005e00fffffffb0000000a0049006d00610067006501000002ce000000f20000005e00fffffffb0000000a0049006d0061006700650100000000000005bc0000000000000000fb0000000a0049006d00610067006501000005c2000001be0000000000000000fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000003c00000003efc0100000002fb0000000800540069006d00650100000000000003c0000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000003c0000002a300000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000022100000288fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073000000011600000288000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000271fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000014800000271000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000020000039f000000d3fc0100000006fb00000010006c006500660074005f00630061006d0100000000000000e20000007000fffffffb0000001400760069006e0073005f0074007200610063006b01000000e8000001cc0000007900fffffffb0000001200720069006700680074005f00630061006d01000002ba000000e50000007800fffffffb0000000a0049006d0061006700650100000000000005bc0000000000000000fb0000000a0049006d00610067006501000005c2000001be0000000000000000fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000039f0000003efc0100000002fb0000000800540069006d006501000000000000039f000002eb00fffffffb0000000800540069006d006501000000000000045000000000000000000000039f0000028800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -438,6 +579,12 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: true
-  Width: 960
-  X: 1920
-  Y: 0
+  Width: 927
+  X: 993
+  Y: 27
+  left_cam:
+    collapsed: false
+  right_cam:
+    collapsed: false
+  vins_track:
+    collapsed: false
