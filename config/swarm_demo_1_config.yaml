@@ -1,8 +1,0 @@
-# Node ID
-node_id:          1
-
-# Rate to publish control signal
-ctrl_rate:        20
-
-# Feedback topic
-odom_topic:       "/airsim_node/drone_1/odom_local_ned"

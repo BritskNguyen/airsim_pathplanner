@@ -310,14 +310,14 @@ void ctrl_timer_cb(const ros::TimerEvent &event)
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "swarm_demo");
-    ros::NodeHandle swarm_ctrl_nh("~");
+    ros::init(argc, argv, "airsim_pathplanner");
+    ros::NodeHandle nh("~");
 
     printf("Swarm control test.\n");
 
     /* #region - Node identity ----------------------------------------------------------------------------------------*/
 
-    if(swarm_ctrl_nh.getParam("node_id", node_id))
+    if(nh.getParam("node_id", node_id))
     {
         printf(KBLU "node_id: %d\n" RESET, node_id);
     }
@@ -332,7 +332,7 @@ int main(int argc, char **argv)
 
     /* #region - Control related configurations ------------------------------------------------------------------------*/
 
-    if(swarm_ctrl_nh.getParam("fixed_yaw", fixed_yaw))
+    if(nh.getParam("fixed_yaw", fixed_yaw))
     {
         printf("Obtained value '%s' for param fixed_yaw\n", fixed_yaw? "true": "false");
     }
@@ -344,21 +344,21 @@ int main(int argc, char **argv)
     
 
     // Advertise the topic
-    vel_cmd_pub = swarm_ctrl_nh.advertise<airsim_ros_pkgs::VelCmd>
+    vel_cmd_pub = nh.advertise<airsim_ros_pkgs::VelCmd>
                                     ("/airsim_node/drone_"
                                      + to_string(node_id)
                                      + "/vel_cmd_world_frame",
                                      1);
 
     //Subscribe to the takeoff service
-    takeoff_srv_client = swarm_ctrl_nh.serviceClient<airsim_ros_pkgs::Takeoff>
+    takeoff_srv_client = nh.serviceClient<airsim_ros_pkgs::Takeoff>
                                         ("/airsim_node/drone_"
                                          + to_string(node_id)
                                          + "/takeoff"
                                         );
     // Collect the control rate parameter
     double ctrl_rate = 0;
-    if( swarm_ctrl_nh.getParam("ctrl_rate", ctrl_rate) )
+    if( nh.getParam("ctrl_rate", ctrl_rate) )
     {
         printf(KBLU "Node %d, control rate found: %.1f Hz\n" RESET, node_id, ctrl_rate);
     }
@@ -369,7 +369,7 @@ int main(int argc, char **argv)
     }
 
     //Create timer to calculate and publish control signal
-    ros::Timer ctrl_timer = swarm_ctrl_nh.createTimer(ros::Duration(1/ctrl_rate), ctrl_timer_cb);
+    ros::Timer ctrl_timer = nh.createTimer(ros::Duration(1/ctrl_rate), ctrl_timer_cb);
     ctrl_timer.stop();
 
     /* #endregion - Control related configurations ------------------------------------------------------------------------*/
@@ -378,7 +378,7 @@ int main(int argc, char **argv)
     /* #region - Collecting the sweeping mission -----------------------------------------------------------------------*/
     
     vector<double> setpoints_;
-    if( swarm_ctrl_nh.getParam("setpoints", setpoints_) )
+    if( nh.getParam("setpoints", setpoints_) )
     {
         printf(KBLU " %d setpoints found\n" RESET, setpoints_.size()/3);
     }
@@ -397,7 +397,7 @@ int main(int argc, char **argv)
         setpoints.push_back(setpoint);
     }
 
-    if( swarm_ctrl_nh.getParam("sweep_velocity", sweep_velocity) )
+    if( nh.getParam("sweep_velocity", sweep_velocity) )
     {
         printf(KBLU "sweep velocity found: %f\n" RESET, sweep_velocity);
     }
@@ -407,7 +407,7 @@ int main(int argc, char **argv)
         printf(KRED "sweep velocity not found. Using %f as default\n" RESET, sweep_velocity);   
     }
     
-    if( swarm_ctrl_nh.getParam("reach_tolerance", reach_tolerance) )
+    if( nh.getParam("reach_tolerance", reach_tolerance) )
     {
         printf(KBLU "reach tolerance found: %f\n" RESET, reach_tolerance);
     }
@@ -423,7 +423,7 @@ int main(int argc, char **argv)
     /* #region - Collecting the topic for feedback ---------------------------------------------------------------------*/
     
     string odom_topic;
-    if ( swarm_ctrl_nh.getParam("odom_topic", odom_topic) )
+    if ( nh.getParam("odom_topic", odom_topic) )
     {
         printf(KBLU "Node %d, odom topic found: %s\n" RESET, node_id, odom_topic.c_str());
     }
@@ -434,7 +434,7 @@ int main(int argc, char **argv)
     }
     
     // Subsribing to the feedback topic
-    ros::Subscriber odom_sub = swarm_ctrl_nh.subscribe(odom_topic, 50, odom_sub_cb);
+    ros::Subscriber odom_sub = nh.subscribe(odom_topic, 50, odom_sub_cb);
 
     /* #endregion - Collecting the topic for feedback ------------------------------------------------------------------*/
 

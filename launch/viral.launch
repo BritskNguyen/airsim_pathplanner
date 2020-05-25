@@ -18,7 +18,7 @@
 
     <!-- Launch the visualization -->
     <node name="rviz_visualisation" pkg="rviz" type="rviz" output="log"
-          args="-d $(find swarm_demo)/launch/viral.rviz" />
+          args="-d $(find airsim_pathplanner)/launch/viral.rviz" />
 
     <group if="$(eval mode == 'record')">
         <!-- rosbag recorder -->
@@ -63,8 +63,8 @@
         <node respawn="true" pkg="rnsim" type="rnsim_node" name="rnsim"  output="log"/>
 
         <!-- swarm demo ctrl node --> 
-        <node required="true" name="swarm_demo_ctrl_0" pkg="swarm_demo" type="swarm_demo_ctrl_node" output="log">
-            <rosparam file="$(find swarm_demo)/config/swarm_demo_inspection_config.yaml" command="load"/>
+        <node required="true" name="airsim_pathplanner_node" pkg="airsim_pathplanner" type="airsim_pathplanner_node" output="log">
+            <rosparam file="$(find airsim_pathplanner)/config/inspection_config.yaml" command="load"/>
         </node>
 
     </group>
@@ -146,7 +146,7 @@
             <!-- VINS node -->
             <arg name="vio_output" default = "log" />
             <node respawn="true" pkg="vins" type="vins_node" name="vins_estimator"
-                    args="$(find swarm_demo)/config/viral/viral_stereo_imu_config.yaml"
+                    args="$(find airsim_pathplanner)/config/viral/viral_stereo_imu_config.yaml"
                     output="$(arg vio_output)"> </node>
 
             <!-- static transform for the vio estimate -->
