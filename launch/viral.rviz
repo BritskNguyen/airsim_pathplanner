@@ -5,17 +5,17 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Cams1
         - /Cams1/left_cam1
         - /Cams1/vins_track1
-        - /drone_01
-        - /drone_01/horz_loam1
-        - /drone_01/horz_loam1/Odometry1/Shape1
-        - /drone_01/vert_loam1
-        - /drone_01/VINS1
+        - /drone_0_OSL1
+        - /drone_0_OSL1/horz_loam1
+        - /drone_0_OSL1/horz_loam1/Odometry1/Shape1
+        - /drone_0_OSL1/vert_loam1
+        - /drone_0_OSL1/VINS1
         - /viral1/Odometry1
         - /viral1/Odometry1/Shape1
         - /gndtruth_odom1/Shape1
+        - /gndtruth_odom_plot1
         - /gndtruth_odom_plot1/Shape1
       Splitter Ratio: 0.39963167905807495
     Tree Height: 509
@@ -349,7 +349,7 @@ Visualization Manager:
           Enabled: true
           Name: VINS
       Enabled: true
-      Name: drone_0
+      Name: drone_0_OSL
     - Class: rviz/Group
       Displays:
         - Angle Tolerance: 0.10000000149011612
@@ -509,16 +509,16 @@ Visualization Manager:
         Axes Radius: 0.125
         Color: 255; 25; 0
         Head Length: 0.05000000074505806
-        Head Radius: 0.20000000298023224
+        Head Radius: 0.05000000074505806
         Shaft Length: 0.05000000074505806
-        Shaft Radius: 0.20000000298023224
+        Shaft Radius: 0.07500000298023224
         Value: Arrow
       Topic: /airsim_node/drone_0/odom_global
       Unreliable: false
       Value: true
   Enabled: true
   Global Options:
-    Background Color: 48; 48; 48
+    Background Color: 255; 255; 255
     Default Light: true
     Fixed Frame: world
     Frame Rate: 30
@@ -544,25 +544,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 24.132333755493164
+      Distance: 21.695674896240234
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.416514277458191
-        Y: 2.895318031311035
-        Z: 3.400653123855591
+        X: 2.610130786895752
+        Y: 4.288450717926025
+        Z: 1.338417410850525
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9947965145111084
+      Pitch: 0.4747964143753052
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.121772050857544
+      Yaw: 0.7917727828025818
     Saved: ~
 Window Geometry:
   Displays:
@@ -580,8 +580,8 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 927
-  X: 993
-  Y: 27
+  X: 2270
+  Y: 0
   left_cam:
     collapsed: false
   right_cam:

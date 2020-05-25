@@ -77,6 +77,7 @@ double reach_tolerance = 0.2;
 double Kp = 1.0;
 double Kp_yaw = 0.25;
 double yaw_rate_max = 0.1;
+bool   fixed_yaw = false;
 
 Vector3d odom_offset;
 
@@ -151,7 +152,7 @@ void ctrl_timer_cb(const ros::TimerEvent &event)
         else
         {
             Vector3d dir = curr_setpoint - setpoints[curr_setpoint_idx - 1];
-            if( sqrt(dir.x()*dir.x() + dir.y()*dir.y()) < 0.05 || fabs(yaw_error) < 0.1 )
+            if( sqrt(dir.x()*dir.x() + dir.y()*dir.y()) < 0.025 || fabs(yaw_error) < 0.1 )
                 yaw_setpoint_reached[curr_setpoint_idx] = true;
             else
                 yaw_setpoint_reached[curr_setpoint_idx] = false; 
@@ -179,7 +180,7 @@ void ctrl_timer_cb(const ros::TimerEvent &event)
                           position_error.z());
 
         // If yaw setpoint has not been reached, don't generate the linear velocity
-        if ( !yaw_setpoint_reached[curr_setpoint_idx] )
+        if ( !yaw_setpoint_reached[curr_setpoint_idx] && !fixed_yaw )
         {
             yaw_rate = Kp_yaw*yaw_error;
             yaw_rate = yaw_rate_max/max(yaw_rate_max,fabs(yaw_rate))*yaw_rate;
@@ -187,8 +188,13 @@ void ctrl_timer_cb(const ros::TimerEvent &event)
         }
         else if ( !position_setpoint_reached[curr_setpoint_idx] )
         {
-            yaw_rate = Kp_yaw*yaw_error;
-            yaw_rate = yaw_rate_max/max(yaw_rate_max,fabs(yaw_rate))*yaw_rate;
+            if (fixed_yaw)
+                yaw_rate = 0;
+            else
+            {
+                yaw_rate = Kp_yaw*yaw_error;
+                yaw_rate = yaw_rate_max/max(yaw_rate_max,fabs(yaw_rate))*yaw_rate;
+            }
             linear_vel = Kp*position_error;
             linear_vel = sweep_velocity/max(sweep_velocity, linear_vel.norm())*linear_vel;
         }
@@ -325,6 +331,17 @@ int main(int argc, char **argv)
 
 
     /* #region - Control related configurations ------------------------------------------------------------------------*/
+
+    if(swarm_ctrl_nh.getParam("fixed_yaw", fixed_yaw))
+    {
+        printf("Obtained value '%s' for param fixed_yaw\n", fixed_yaw? "true": "false");
+    }
+    else
+    {
+        fixed_yaw = false;
+        printf("fixed_yaw not set. Use 'false' by default\n");
+    }
+    
 
     // Advertise the topic
     vel_cmd_pub = swarm_ctrl_nh.advertise<airsim_ros_pkgs::VelCmd>
