@@ -26,7 +26,7 @@ body_T_cam0: !!opencv-matrix
    dt: d
    data: [ 0.0,  0.0, 1.0,  0.30,
            1.0,  0.0, 0.0, -0.115,
-           0.0,  1.0, 0.0, -0.1, 
+           0.0,  1.0, 0.0, -0.15, 
            0.0,  0.0, 0.0,  1.0 ]
 
 body_T_cam1: !!opencv-matrix
@@ -35,7 +35,7 @@ body_T_cam1: !!opencv-matrix
    dt: d
    data: [ 0.0,  0.0, 1.0,  0.30,
            1.0,  0.0, 0.0,  0.115,
-           0.0,  1.0, 0.0, -0.1, 
+           0.0,  1.0, 0.0, -0.15, 
            0.0,  0.0, 0.0,  1.0 ]
 
 #Multiple thread support
@@ -55,11 +55,11 @@ max_num_iterations: 8   # max solver itrations, to guarantee real time
 keyframe_parallax: 10.0 # keyframe selection threshold (pixel)
 
 #imu parameters       The more accurate parameters you provide, the better performance
-acc_n:  0.1          # accelerometer measurement noise standard deviation. 
-gyr_n:  0.01         # gyroscope measurement noise standard deviation.     
-acc_w:  0.001        # accelerometer bias random work noise standard deviation.  
-gyr_w:  0.0001       # gyroscope bias random work noise standard deviation.     
-g_norm: 9.81007      # gravity magnitude
+acc_n:  0.05          # accelerometer measurement noise standard deviation. 
+gyr_n:  0.002         # gyroscope measurement noise standard deviation.     
+acc_w:  0.001         # accelerometer bias random work noise standard deviation.  
+gyr_w:  0.0001        # gyroscope bias random work noise standard deviation.     
+g_norm: 9.81007       # gravity magnitude
 
 #unsynchronization parameters
 estimate_td: 0                      # online estimate time offset between camera and imu
@@ -77,7 +77,7 @@ cam0_rectify: !!opencv-matrix
   dt: d
   data: [ 0.0,  0.0, 1.0,  0.30,
           1.0,  0.0, 0.0, -0.115,
-          0.0, -1.0, 0.0, -0.1, 
+          0.0,  1.0, 0.0, -0.1, 
           0.0,  0.0, 0.0,  1.0 ]
 
 cam1_rectify: !!opencv-matrix

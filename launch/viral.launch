@@ -1,16 +1,16 @@
 <launch>
 
-    <!-- <arg name="bagfile_name" default="/home/$(env USER)/airsim_building99_interwoven_2020-05-24-23-07-54.bag" /> -->
-    <!-- <arg name="bagfile_name" default="/home/$(env USER)/airsim_building99_NTU_2020-05-25-01-28-44.bag" /> -->
-    <arg name="bagfile_name" default="/home/$(env USER)/airsim_building99_xsweep_2020-05-25-02-10-16.bag" />
+    <arg name="bagfile_name" default="airsim_building99_interwoven_new_mod" />
+    <!-- <arg name="bagfile_name" default="airsim_building99_NTU_new_mod" /> -->
+    <!-- <arg name="bagfile_name" default="airsim_building99_xsweep_new_mod" /> -->
     
     <arg name="mode" default="play" /> <!-- choose "record" or "play" or "check"-->
+    <arg name="bag_record_delay" default="10" /> <!-- choose "record" or "play" or "check"-->
 
-
-    <arg name="airsim_imu_hz" default="400" />
+    <arg name="airsim_imu_hz" default="1" />
     <arg name="airsim_gndtruth_hz" default="200" />
-    <arg name="airsim_img_hz" default="10" />
-    <arg name="airsim_lidar_hz" default="10" />
+    <arg name="airsim_img_hz" default="5" />
+    <arg name="airsim_lidar_hz" default="5" />
     
     <!-- trival transform -->
     <node pkg="tf2_ros" type="static_transform_publisher" name="enu_ned_static_tf"
@@ -22,24 +22,28 @@
 
     <group if="$(eval mode == 'record')">
         <!-- rosbag recorder -->
-        <node  pkg="rosbag" type="record" name="rosbag_record"
-            args="-o /home/$(env USER)/airsim_building99_xsweep
+        <node required="true" pkg="rosbag" type="record" name="rosbag_record"
+              args="-o /media/$(env USER)/mySamsungSSD/AirSim/$(arg bagfile_name).bag
                     /airsim_node/drone_0/imu/Imu
+                    /airsim_node/drone_0/drone_state
                     /airsim_node/drone_0/left/Scene
                     /airsim_node/drone_0/right/Scene
                     /airsim_node/drone_0/lidar/Lidar0
                     /airsim_node/drone_0/lidar/Lidar1
                     /airsim_node/drone_0/odom_global
-                    /airsim_node/drone_0/odom_global_ground_truth_body_200
-                    /airsim_node/drone_0/vel_cmd_world_frame
-                    /uwb_endorange_info_200" />
+                    /uwb_endorange_info_200"
+              launch-prefix="bash -c 'sleep $(arg bag_record_delay); $0 $@' " />
     </group>
 
     <group if="$(eval mode == 'play')">
 
         <param name  ="/use_sim_time" value="true"/>
         <node required="true" pkg="rosbag" type="play" name="rosbag_play"
-              args="--clock $(arg bagfile_name)" />
+              args="--clock /media/$(env USER)/mySamsungSSD/AirSim/$(arg bagfile_name).bag" output="log"/>
+
+        <!-- rangenet simulator node -->
+        <rosparam file="$(find rnsim)/cfg/rnsim_viral_airsim_config.yaml" command="load"/>
+        <node respawn="true" pkg="rnsim" type="rnsim_node" name="rnsim"  output="log"/>
 
     </group>
 
@@ -47,8 +51,8 @@
 
         <!-- Launching the airsim server -->
         <arg name="host" default="localhost" />
-        <arg name="airsim_output_mode" default="log" />
-        <node name="airsim_node" pkg="airsim_ros_pkgs" type="airsim_node" output="$(arg airsim_output_mode)">
+        <arg name="airsim_output_mode" default="screen" />
+        <node required="true" name="airsim_node" pkg="airsim_ros_pkgs" type="airsim_node" output="$(arg airsim_output_mode)">
             <!-- ROS timer rates. Note that timer callback will be processed at maximum possible rate, upperbounded by the following ROS params -->
             <param name="is_vulkan" type="bool" value="false" /> 
             <param name="update_airsim_img_response_every_n_sec" type="double" value="$(eval 1.0/airsim_img_hz)" /> 
@@ -59,11 +63,11 @@
         </node>
 
         <!-- rangenet simulator node -->
-        <rosparam file="$(find rnsim)/cfg/rnsim_viral_airsim_config.yaml" command="load"/>
-        <node respawn="true" pkg="rnsim" type="rnsim_node" name="rnsim"  output="log"/>
+        <!-- <rosparam file="$(find rnsim)/cfg/rnsim_viral_airsim_config.yaml" command="load"/>
+        <node respawn="true" pkg="rnsim" type="rnsim_node" name="rnsim"  output="log"/> -->
 
         <!-- swarm demo ctrl node --> 
-        <node required="true" name="airsim_pathplanner_node" pkg="airsim_pathplanner" type="airsim_pathplanner_node" output="log">
+        <node required="true" name="airsim_pathplanner_node" pkg="airsim_pathplanner" type="airsim_pathplanner_node" output="screen">
             <rosparam file="$(find airsim_pathplanner)/config/inspection_config.yaml" command="load"/>
         </node>
 
@@ -83,8 +87,11 @@
                     0.0,  0.0,  1.0,  0.0,
                     0.0,  0.0,  0.0,  0.0 ]
             </rosparam>
-            <node pkg="aloam_velodyne" type="ascanRegistration" name="ascanRegistration_$(arg loam_id)" output="log" >
+            <node pkg="aloam_velodyne" type="ascanRegistration" name="ascanRegistration_$(arg loam_id)" output="screen" >
                 <param name="pointcloud_topic" type="string"  value="/airsim_node/drone_0/lidar/Lidar0"/>
+                <param name="scan_line"        type="int"     value="16"/>
+                <param name="ring_coeff1"      type="double"  value="16.611"/>
+                <param name="ring_coeff2"      type="double"  value="2.2148"/>
                 <param name="scan_line"        type="int"     value="16"/>
                 <param name="minimum_range"    type="double"  value="0.3"/>
                 <param name="loam_id"          type="string"  value="$(arg loam_id)"/>
@@ -102,7 +109,7 @@
             </node>
             <!-- static transform for the loam estimate -->
             <node pkg="tf2_ros" type="static_transform_publisher" name="loam_$(arg loam_id)_init_tf"
-                args="5.0  0.0  1.0 -1.57079632679  0.0  3.14159265359 world lidar_init_$(arg loam_id)" />
+                args="-9.0  2.0  -0.5729 -1.57079632679  0.0  3.14159265359 world lidar_init_$(arg loam_id)" />
         </group>
 
 
@@ -121,6 +128,8 @@
             <node pkg="aloam_velodyne" type="ascanRegistration" name="ascanRegistration_$(arg loam_id)" output="log" >
                 <param name="pointcloud_topic" type="string"  value="/airsim_node/drone_0/lidar/Lidar1"/>
                 <param name="scan_line"        type="int"     value="16"/>
+                <param name="ring_coeff1"      type="double"  value="16.611"/>
+                <param name="ring_coeff2"      type="double"  value="2.2148"/>
                 <param name="minimum_range"    type="double"  value="0.3"/>
                 <param name="loam_id"          type="string"  value="$(arg loam_id)"/>
             </node>
@@ -137,8 +146,9 @@
             </node>
             <!-- static transform for the loam estimate -->
             <node pkg="tf2_ros" type="static_transform_publisher" name="loam_$(arg loam_id)_init_tf"
-                args="5.0  0.75  1.0 -4.71238898038  0.0  4.71238898038 world lidar_init_$(arg loam_id)" />
+                args="-9.0  2.0  -0.5729 -4.71238898038  0.0  4.71238898038 world lidar_init_$(arg loam_id)" />
         </group>
+
 
         <!-- visual odometry node -->
         <arg name="vio_en" default="true" />
@@ -146,12 +156,16 @@
             <!-- VINS node -->
             <arg name="vio_output" default = "log" />
             <node respawn="true" pkg="vins" type="vins_node" name="vins_estimator"
-                    args="$(find airsim_pathplanner)/config/viral/viral_stereo_imu_config.yaml"
+                    args="$(find vins)/../config/airsim/viral_stereo_imu_config.yaml"
+                    output="$(arg vio_output)"> </node>
+
+            <node respawn="true" pkg="loop_fusion" type="loop_fusion_node" name="loop_fusion_node"
+                    args="$(find vins)/../config/airsim/viral_stereo_imu_config.yaml"
                     output="$(arg vio_output)"> </node>
 
             <!-- static transform for the vio estimate -->
             <node pkg="tf2_ros" type="static_transform_publisher" name="vio_init_tf"
-                    args="5.0 -0.3  0.15 -1.57079632679  0.0  0.0  world vio_init" />
+                  args="-9.0  2.0  -0.5729 -1.57079632679  0.0  0.0  world vio_init" />
         </group>
 
             <!-- ######### Launch the viral node ################################ -->
@@ -164,7 +178,7 @@
                 <rosparam file="$(find viral)/config/viral_airsim_params.yaml" command="load"/>
 
                 <param name="log_filename" type="string"
-                    value="/home/$(env USER)/viral_airsim.csv" />
+                    value="/media/$(env USER)/mySamsungSSD/AirSim/$(arg bagfile_name)_viral.csv" />
 
             </node>
 

@@ -1,0 +1,38 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/tmn/dev_ws/devel/include/**",
+                "/home/tmn/AirSim/ros/devel/include/**",
+                "/opt/ros/melodic/include/**",
+                "/home/tmn/AirSim/ros/src/airsim_ros_pkgs/include/**",
+                "/home/tmn/dev_ws/src/A-LOAM/include/**",
+                "/home/tmn/dev_ws/src/VINS-Mono/camera_model/include/**",
+                "/home/tmn/dev_ws/src/VINS-Fusion/camera_models/include/**",
+                "/home/tmn/dev_ws/src/datamod/include/**",
+                "/home/tmn/dev_ws/src/Onboard-SDK-ROS/dji_sdk/include/**",
+                "/home/tmn/dev_ws/src/Onboard-SDK-ROS/dji_sdk_demo/include/**",
+                "/home/tmn/dev_ws/src/ethzasl_msf/msf_core/include/**",
+                "/home/tmn/dev_ws/src/msf_log/include/**",
+                "/home/tmn/dev_ws/src/ethzasl_msf/msf_timing/include/**",
+                "/home/tmn/dev_ws/src/ethzasl_msf/msf_updates/include/**",
+                "/home/tmn/dev_ws/src/mytest/include/**",
+                "/home/tmn/dev_ws/src/rnsim/include/**",
+                "/home/tmn/dev_ws/src/serial/include/**",
+                "/home/tmn/dev_ws/src/uwb_driver/include/**",
+                "/home/tmn/dev_ws/src/viral/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14"
+        }
+    ],
+    "version": 4
+}

@@ -257,6 +257,15 @@ void ctrl_timer_cb(const ros::TimerEvent &event)
     }
     
 
+    static bool shutdown_start = false;
+    if(curr_setpoint_idx == setpoints.size()-1 || shutdown_start)
+    {
+        static ros::Time shutdown_time = ros::Time::now();
+        shutdown_start = true;
+        if( (ros::Time::now() - shutdown_time).toSec() > 20 )
+            exit(-1);
+    }
+
     // switch(node_id)
     // {
     //     case 0:
@@ -448,6 +457,9 @@ int main(int argc, char **argv)
         rate.sleep();
         ros::spinOnce();
     }
+
+    // Wait for about 20 seconds to keep the processes cool
+    ros::Duration(20).sleep();
 
     printf("Taking off.\n");
 

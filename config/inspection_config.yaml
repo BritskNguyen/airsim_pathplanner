@@ -12,12 +12,12 @@ odom_topic:       "/airsim_node/drone_0/odom_global"
 
 fixed_yaw:        true
 
-# Interwoven straight line: rememeber to set the drone starting position to 5, 0, 0
+# # Interwoven straight line: rememeber to set the drone starting position to 5, 0, 0
 # setpoints:
 #   [ 0,    0,    2,
 #     0,    0,    9,
 
-#   -15.0,  0,    9,
+#    -15.0, 0,    9,
 #    -15.0, 2.5,  9,
 #    -2.5,  2.5,  9,
 #    -2.5,  5.0,  9,
@@ -62,7 +62,37 @@ fixed_yaw:        true
     
 #    -2.5,  0.0, -10.0]
 
-# NTU Stylish trajctory: remember to set the drone starting position to -9 -2 0
+# # Interwoven straight line compacted: rememeber to set the drone starting position to 5, 0, 0
+# setpoints:
+#   [ 0,    0,    2,
+#     0,    0,    9,
+#    -15.0, 0,    9,
+#    -15.0, 2.5,  9,
+#    -2.5,  2.5,  9,
+#    -2.5,  5.0,  9,
+#    -15.0, 5.0,  9,
+#    -15.0, 7.5,  9,
+#    -2.5,  7.5,  9,
+   
+#    -2.5,  7.5,  6.0,
+#    -2.5,  0.0,  6.0,
+#    -5.0,  0.0,  6.0,
+#    -5.0,  7.5,  6.0,
+#    -7.5,  7.5,  6.0,
+#    -7.5,  0.0,  6.0,
+#    -10.0, 0.0,  6.0,
+#    -10.0, 7.5,  6.0,
+#    -12.5, 7.5,  6.0,
+#    -12.5, 0.0,  6.0,
+#    -15.0, 0.0,  6.0,
+#    -15.0, 7.5,  6.0,
+   
+#    -15.0, 7.5,  3.0,
+#    -2.5,  7.5,  3.0,
+#    -2.5,  0.0,  3.0,
+#    -2.5,  0.0, -10.0]
+
+# # NTU Stylish trajctory: remember to set the drone starting position to -9 -2 0
 # setpoints:
 #   [ 0,     0,     2,
 #     0,     0,     6,
