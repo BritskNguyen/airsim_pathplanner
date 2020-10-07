@@ -1,7 +1,7 @@
 <launch>
 
-    <arg name="bagfile_name" default="airsim_building99_interwoven_new_mod" />
-    <!-- <arg name="bagfile_name" default="airsim_building99_NTU_new_mod" /> -->
+    <!-- <arg name="bagfile_name" default="airsim_building99_interwoven_new_mod" /> -->
+    <arg name="bagfile_name" default="airsim_building99_NTU_new_mod" />
     <!-- <arg name="bagfile_name" default="airsim_building99_xsweep_new_mod" /> -->
     
     <arg name="mode" default="play" /> <!-- choose "record" or "play" or "check"-->
@@ -74,6 +74,12 @@
     </group>
 
     <group if="$(eval mode=='play' or mode=='check')">
+
+        <!-- Datamod for visualization -->
+        <node pkg="datamod" type="datamod_node" name="datamod" output="screen">
+            <rosparam file="$(find datamod)/cfg/airsim_config.yaml" command="load"/>
+        </node>
+
         
         <!-- Horizontal LOAM -->
         <arg name="horz" default="true" />
@@ -87,7 +93,7 @@
                     0.0,  0.0,  1.0,  0.0,
                     0.0,  0.0,  0.0,  0.0 ]
             </rosparam>
-            <node pkg="aloam_velodyne" type="ascanRegistration" name="ascanRegistration_$(arg loam_id)" output="screen" >
+            <node pkg="aloam_velodyne" type="ascanRegistration" name="ascanRegistration_$(arg loam_id)" output="log" >
                 <param name="pointcloud_topic" type="string"  value="/airsim_node/drone_0/lidar/Lidar0"/>
                 <param name="scan_line"        type="int"     value="16"/>
                 <param name="ring_coeff1"      type="double"  value="16.611"/>
@@ -109,7 +115,7 @@
             </node>
             <!-- static transform for the loam estimate -->
             <node pkg="tf2_ros" type="static_transform_publisher" name="loam_$(arg loam_id)_init_tf"
-                args="-9.0  2.0  -0.5729 -1.57079632679  0.0  3.14159265359 world lidar_init_$(arg loam_id)" />
+                args="0 0 0 0 0 0 world lidar_init_$(arg loam_id)" />
         </group>
 
 
@@ -146,7 +152,7 @@
             </node>
             <!-- static transform for the loam estimate -->
             <node pkg="tf2_ros" type="static_transform_publisher" name="loam_$(arg loam_id)_init_tf"
-                args="-9.0  2.0  -0.5729 -4.71238898038  0.0  4.71238898038 world lidar_init_$(arg loam_id)" />
+                args="0 0 0 0 0 0 world lidar_init_$(arg loam_id)" />
         </group>
 
 
@@ -165,7 +171,7 @@
 
             <!-- static transform for the vio estimate -->
             <node pkg="tf2_ros" type="static_transform_publisher" name="vio_init_tf"
-                  args="-9.0  2.0  -0.5729 -1.57079632679  0.0  0.0  world vio_init" />
+                  args="0 0 0 0 0 0  world vio_init" />
         </group>
 
             <!-- ######### Launch the viral node ################################ -->
