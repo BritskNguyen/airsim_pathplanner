@@ -1,7 +1,7 @@
 <launch>
 
-    <!-- <arg name="bagfile_name" default="airsim_building99_interwoven_new_mod" /> -->
-    <arg name="bagfile_name" default="airsim_building99_NTU_new_mod" />
+    <arg name="bagfile_name" default="airsim_building99_interwoven_new_mod" />
+    <!-- <arg name="bagfile_name" default="airsim_building99_NTU_new_mod" /> -->
     <!-- <arg name="bagfile_name" default="airsim_building99_xsweep_new_mod" /> -->
     
     <arg name="mode" default="play" /> <!-- choose "record" or "play" or "check"-->
@@ -77,7 +77,7 @@
 
         <!-- Datamod for visualization -->
         <node pkg="datamod" type="datamod_node" name="datamod" output="screen">
-            <rosparam file="$(find datamod)/cfg/airsim_config.yaml" command="load"/>
+            <rosparam file="$(find datamod)/cfg/viral_airsim_config.yaml" command="load"/>
         </node>
 
         
@@ -89,9 +89,9 @@
             <!-- scan registration -->
             <rosparam param="/ascanRegistration_$(arg loam_id)/T_B_Bl">
                 [ 1.0,  0.0,  0.0,  0.0,
-                    0.0,  1.0,  0.0,  0.0,
-                    0.0,  0.0,  1.0,  0.0,
-                    0.0,  0.0,  0.0,  0.0 ]
+                  0.0,  1.0,  0.0,  0.0,
+                  0.0,  0.0,  1.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0 ]
             </rosparam>
             <node pkg="aloam_velodyne" type="ascanRegistration" name="ascanRegistration_$(arg loam_id)" output="log" >
                 <param name="pointcloud_topic" type="string"  value="/airsim_node/drone_0/lidar/Lidar0"/>
@@ -127,9 +127,9 @@
             <!-- scan registration -->
             <rosparam param="/ascanRegistration_$(arg loam_id)/T_B_Bl">
                 [ 1.0,  0.0,  0.0,  0.0,
-                    0.0,  1.0,  0.0,  0.0,
-                    0.0,  0.0,  1.0,  0.0,
-                    0.0,  0.0,  0.0,  0.0 ]
+                  0.0,  1.0,  0.0,  0.0,
+                  0.0,  0.0,  1.0,  0.0,
+                  0.0,  0.0,  0.0,  0.0 ]
             </rosparam>
             <node pkg="aloam_velodyne" type="ascanRegistration" name="ascanRegistration_$(arg loam_id)" output="log" >
                 <param name="pointcloud_topic" type="string"  value="/airsim_node/drone_0/lidar/Lidar1"/>
